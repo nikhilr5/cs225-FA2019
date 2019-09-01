@@ -51,7 +51,7 @@ PNG grayscale(PNG image) {
  * is a total of `sqrt((3 * 3) + (4 * 4)) = sqrt(25) = 5` pixels away and
  * its luminance is decreased by 2.5% (0.975x its original value).  At a
  * distance over 160 pixels away, the luminance will always decreased by 80%.
- * 
+ *
  * The modified PNG is then returned.
  *
  * @param image A PNG object which holds the image data to be modified.
@@ -61,11 +61,22 @@ PNG grayscale(PNG image) {
  * @return The image with a spotlight.
  */
 PNG createSpotlight(PNG image, int centerX, int centerY) {
-
+  for (unsigned int x = 0; x < image.width(); x++) {
+    for (unsigned int y = 0; y < image.height(); y++) {
+      HSLAPixel &pixel = image.getPixel(x,y);
+      double distanceCenter = std::sqrt(std::pow((y - centerY) * 1, 2) + std::pow((x - centerX)*1 , 2));
+      double lumHolder = (distanceCenter * .5) / 100;
+      if (distanceCenter > 160) {
+        pixel.l = (1 - .80) * pixel.l;
+      } else {
+        pixel.l = (1 - lumHolder) * pixel.l;
+      }
+    }
+  }
   return image;
-  
+
 }
- 
+
 
 /**
  * Returns a image transformed to Illini colors.
@@ -78,10 +89,21 @@ PNG createSpotlight(PNG image, int centerX, int centerY) {
  * @return The illinify'd image.
 **/
 PNG illinify(PNG image) {
+  for (unsigned int x = 0; x< image.width(); x++){
+    for (unsigned int y = 0; y < image.height(); y++) {
+      HSLAPixel & pixel = image.getPixel(x, y);
+      if(pixel.h < 114 || pixel.h > 293) {
+        pixel.h = 11;
+      } else {
+        pixel.h = 216;
+      }
 
+
+    }
+  }
   return image;
 }
- 
+
 
 /**
 * Returns an immge that has been watermarked by another image.
@@ -96,6 +118,19 @@ PNG illinify(PNG image) {
 * @return The watermarked image.
 */
 PNG watermark(PNG firstImage, PNG secondImage) {
-
+  for (unsigned int x = 0; x < firstImage.width(); x++) {
+    for (unsigned int y = 0; y < firstImage.height(); y++) {
+      HSLAPixel &firstImagePixel = firstImage.getPixel(x,y);
+      HSLAPixel &secondImagePixel = secondImage.getPixel(x,y);
+      if (secondImagePixel.l == 1) {
+        if (firstImagePixel.l < .8) {
+          firstImagePixel.l = firstImagePixel.l + 0.2;
+          //lum can't exceed 1
+        } else {
+          firstImagePixel.l = 1;
+        }
+      }
+    }
+  }
   return firstImage;
 }
