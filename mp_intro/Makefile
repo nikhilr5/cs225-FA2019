@@ -47,9 +47,9 @@ clean :
 	-rm -f *.o $(EXENAME) test
 
 test: output_msg tests.o PNG.o HSLAPixel.o lodepng.o intro.o
-				$(LD) tests.o PNG.o HSLAPixel.o lodepng.o intro.o $(LDFLAGS) -o test
+	$(LD) tests.o PNG.o HSLAPixel.o lodepng.o intro.o $(LDFLAGS) -o test
 
-tests.o: tests/tests.cpp tests/catch.hpp cs225.PNG.h cs225/HSLAPixel.h
-				$(CXX) $(CXXFLAGS) tests/tests.cpp
+tests.o: tests/tests.cpp tests/catch.hpp cs225/PNG.h cs225/HSLAPixel.h
+	$(CXX) $(CXXFLAGS) tests/tests.cpp
 
 .PHONY: output_msg
