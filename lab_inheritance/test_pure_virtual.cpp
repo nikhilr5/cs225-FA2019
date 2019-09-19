@@ -22,7 +22,7 @@ int main()
      */
     Drawable* truck = new Truck(truck_center);
 
-    truck->draw(&canvas);
+    truck->draw(&canvas); //draw function not written in truck
 
     canvas.writeToFile("test_pure_virtual.png");
 
