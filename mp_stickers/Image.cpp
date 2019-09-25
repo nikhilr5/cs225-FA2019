@@ -76,8 +76,11 @@ void Image:: rotateColor(double degrees) {
       HSLAPixel & pixel = this->getPixel(i,j);
 
       pixel.h += degrees;
-      if (pixel.h > 360) {
-        pixel.h = 360;
+      while (pixel.h > 360) {
+        pixel.h -= 360;
+      }
+      while (pixel.h < 0) {
+        pixel.h += 360;
       }
     }
   }
@@ -98,9 +101,12 @@ void Image:: illinify() {
 }
 
 void Image:: scale(double factor) {
-  int newWidth = (int)(this->width() * factor);
-  int newHeight = (int)(this->height() * factor);
-  PNG *newImage = new PNG(newWidth, newHeight);
+  int newWidth = (this->width() * factor);
+  int newHeight = (this->height() * factor);
+  Image * newImage = new Image();
+
+  *newImage = *this;
+
 
   this->resize(newWidth, newHeight); //png function
 
@@ -114,23 +120,24 @@ void Image:: scale(double factor) {
         pixel = newPixel;
     }
   }
+  delete newImage;
 }
 
 void Image:: scale (unsigned w, unsigned h) {
-  int newWidth = (int)(this->width() * w);
-  int newHeight = (int)(this->height() * h);
-  PNG *newImage = new PNG(newWidth, newHeight);
+Image * newImage = new Image();
+*newImage = *this;
 
-  this->resize(newWidth, newHeight); //png function
+  this->resize(w, h); //png function
+  double wFactor = w / width();
+  double hFactor = h / height();
 
   for (unsigned int x = 0; x< this->width(); x++){
     for (unsigned int y = 0; y < this->height(); y++) {
-        int newX = x / w;
-        int newY = y / h;
 
-        HSLAPixel & newPixel = newImage->getPixel(newX,newY);
+        HSLAPixel & newPixel = newImage->getPixel(x/ wFactor ,y / hFactor);
         HSLAPixel & pixel = this->getPixel(x,y);
         pixel = newPixel;
     }
   }
+  delete newImage;
 }

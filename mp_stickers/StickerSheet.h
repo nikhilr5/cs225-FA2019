@@ -6,6 +6,8 @@
 #ifndef StickerSheet_H
 #define StickerSheet_H
 
+#include "Image.h"
+
 class StickerSheet {
   public :
     StickerSheet(const Image & picture, unsigned max);
@@ -16,6 +18,18 @@ class StickerSheet {
     int addSticker(Image & sticker, unsigned x, unsigned y);
     bool translate(unsigned index, unsigned x, unsigned y);
     void removeSticker(unsigned index);
+    Image * getSticker(unsigned index);
+    Image render() const;
+    void deleter();
+    void copy(const StickerSheet & other);
+private:
+  Image* base;
+  unsigned max_;
+  Image ** images;
+  unsigned * xCord;
+  unsigned * yCord;
+  unsigned stickerCounter;
+
 
 };
 
