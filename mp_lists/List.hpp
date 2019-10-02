@@ -4,10 +4,11 @@
  */
 
 template <class T>
-List<T>::List() { 
+List<T>::List() {
   // @TODO: graded in MP3.1
     ListNode* head_ = NULL;
     ListNode* tail_ = NULL;
+    length_ = 0;
 }
 
 /**
@@ -37,7 +38,16 @@ typename List<T>::ListIterator List<T>::end() const {
 template <typename T>
 void List<T>::_destroy() {
   /// @todo Graded in MP3.1
+  while (head_ != NULL) {
+    ListNode * tmp = head_->next;
+    delete head_;
+    head_ = tmp;
+  }
+  head_ = NULL;
+  tail_ = NULL;
+
 }
+
 
 /**
  * Inserts a new node at the front of the List.
@@ -49,20 +59,23 @@ template <typename T>
 void List<T>::insertFront(T const & ndata) {
   /// @todo Graded in MP3.1
   ListNode * newNode = new ListNode(ndata);
-  newNode -> next = head_;
-  newNode -> prev = NULL;
-  
-  if (head_ != NULL) {
-    head_ -> prev = newNode;
-  }
-  if (tail_ == NULL) {
+  if (length_ > 0) {
+    //null is now new Node
+    head_->prev = newNode;
+    //newNode points to old head
+    newNode->next = head_;
+    //making newNode head of list
+    head_ = newNode;
+    //newNode prev is null since new head
+    newNode->prev = NULL;
+
+  } else {
+    head_ = newNode;
     tail_ = newNode;
+    newNode->prev = NULL;
   }
-  
-
   length_++;
-
-}
+  }
 
 /**
  * Inserts a new node at the back of the List.
@@ -73,6 +86,19 @@ void List<T>::insertFront(T const & ndata) {
 template <typename T>
 void List<T>::insertBack(const T & ndata) {
   /// @todo Graded in MP3.1
+ListNode * newNode = new ListNode(ndata);
+if (length_ > 0) {
+  tail_->next = newNode;
+  newNode->prev = tail_;
+  newNode->next = NULL;
+  tail_ = newNode;
+} else {
+  tail_ = newNode;
+  head_ = newNode;
+  newNode->next = NULL;
+
+}
+  length_++;
 }
 
 /**
@@ -93,19 +119,18 @@ void List<T>::insertBack(const T & ndata) {
  */
 template <typename T>
 typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
+  if (splitPoint >= length_ || splitPoint < 0) { return NULL;}
   /// @todo Graded in MP3.1
   ListNode * curr = start;
 
-  for (int i = 0; i < splitPoint || curr != NULL; i++) {
+  for (int i = 0; i < splitPoint; ++i) {
     curr = curr->next;
-  }
 
-  if (curr != NULL) {
-      curr->prev->next = NULL;
-      curr->prev = NULL;
   }
+  curr->prev->next = NULL;
+  curr->prev = NULL;
 
-  return NULL;
+  return curr;
 }
 
 /**
@@ -120,6 +145,26 @@ typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
 template <typename T>
 void List<T>::waterfall() {
   /// @todo Graded in MP3.1
+  ListNode * curr = head_;
+  ListNode * hold;
+  int spot = 1;
+  while (curr != tail_) {
+    hold = curr->next;
+    if(spot % 2 == 0) {
+      //previous node pts to next node
+      curr->prev->next = curr->next;
+      //next node pts to previous node
+      curr->next->prev = curr->prev;
+      tail_->next = curr;
+      curr->prev = tail_;
+      curr->next = NULL;
+      tail_ = curr;
+    }
+    spot++;
+    //next node which we held b4 if statement
+    curr = hold;
+  }
+
 }
 
 /**
@@ -184,7 +229,7 @@ void List<T>::mergeWith(List<T> & otherList) {
 
 /**
  * Helper function to merge two **sorted** and **independent** sequences of
- * linked memory. The result should be a single sequence that is itself
+ * linked memory. The result should be a single sequence that is itself+
  * sorted.
  *
  * This function **SHOULD NOT** create **ANY** new List objects.

@@ -167,32 +167,43 @@ void scramble(queue<T>& q)
  * @param q The queue to compare
  * @return  true if the stack and the queue are the same; false otherwise
  */
+
+ //extra credit with comments
 template <typename T>
 bool verifySame(stack<T>& s, queue<T>& q)
 {
-  //bool retval = true;
+  bool retval = true;
+  //have to be same size if they are the same lists
   // if (s.size() != q.size()) {
   //   return false;
   // }
-  // T queue2;
-  // T stack2;
-  // if (s.empty()) {
-  //   return true;
-  // }
-  // stack2 = s.top();
-  // s.pop();
-  // bool retval = verifySame(s,q);
-  // queue2 = q.front();
-  // q.pop();
-  // //restore refs
-  // q.push(queue2);
-  // s.push(stack2);
-  // bool equal = (queue2 == stack2);
-  // return retval || equal;
 
-    // Your code here
 
-    return false;
+  /*^ doesn't work with this since we are removing elements from stack thus the
+  size won't be the same when calling recursively
+  */
+
+
+  //creates new stack and queue
+  T queue2;
+  T stack2;
+  //base case
+  if (s.empty()) return true;
+  stack2 = s.top();
+  //increment
+  s.pop();
+  // recursively calls with the top of the stack removed
+  retval = verifySame(s,q);
+  queue2 = q.front();
+  q.pop();
+  //restore refs so stack is unchanged by pulling out and pushing back in same way
+  q.push(queue2);
+  s.push(stack2);
+  //checks if each element is equals after taking apart stack
+  bool equals = (queue2 == stack2);
+  //makes sure that we at bottom of stack and that the corresponding elements r equal
+  return retval && equals;
+
 }
 
 }
