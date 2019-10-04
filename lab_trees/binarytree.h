@@ -11,6 +11,7 @@
 #include <vector>
 #include <sstream>
 #include <random>
+#include <queue>
 
 /**
  * The BinaryTree class represents a templated linked-memory tree data
@@ -94,7 +95,7 @@ class BinaryTree
         /**
          * @return The root of the binary tree
          */
-        Node* getRoot() const;  
+        Node* getRoot() const;
 
         /**
          * This lab deals with the following six helper functions:
@@ -121,6 +122,8 @@ class BinaryTree
          */
         void mirror();
 
+        void mirror(Node* subRoot);
+
         /**
          * isOrdered() function iterative version
          * @return True if an in-order traversal of the tree would produce a
@@ -137,6 +140,9 @@ class BinaryTree
          */
         bool isOrderedRecursive() const;
 
+        //helper
+        void isOrderedRecursive(Node* subRoot, std::vector<T>& treeVector) const;
+
 
         /**
          * creates vectors of all the possible paths from the root of the tree to any leaf
@@ -148,6 +154,11 @@ class BinaryTree
          */
         void getPaths(std::vector<std::vector<T>>& paths) const;
 
+
+        //helper
+        void getPaths(std::vector<std::vector<T>>& paths,
+          std::vector<T> singlePath, Node* subRoot) const;
+
         /**
          * Each node in a tree has a distance from the root node - the depth of that
          * node, or the number of edges along the path from that node to the root.
@@ -158,9 +169,12 @@ class BinaryTree
          */
         int sumDistances() const;
 
+        //helper
+        int sumDistances(Node* subRoot, int currentDistance) const;
+
         /**
          *  Uses vector to store values of the nodes of a binary tree in order.
-         * That is, everything to the left of a node will be pushed before that
+         * That is,InorderTraversal everything to the left of a node will be pushed before that
          * node itself, and everything to the right of a node will be pushed
          * after that node.
          * @param treeVector stores nodes in order

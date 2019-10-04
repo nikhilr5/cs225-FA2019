@@ -37,9 +37,10 @@ typename List<T>::ListIterator List<T>::end() const {
  */
 template <typename T>
 void List<T>::_destroy() {
+  ListNode * tmp;
   /// @todo Graded in MP3.1
   while (head_ != NULL) {
-    ListNode * tmp = head_->next;
+    tmp = head_->next;
     delete head_;
     head_ = tmp;
   }
@@ -119,11 +120,11 @@ if (length_ > 0) {
  */
 template <typename T>
 typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
-  if (splitPoint >= length_ || splitPoint < 0) { return NULL;}
+  if (splitPoint >= length_ || splitPoint < 0) { return start;}
   /// @todo Graded in MP3.1
   ListNode * curr = start;
-
   for (int i = 0; i < splitPoint; ++i) {
+
     curr = curr->next;
 
   }

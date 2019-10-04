@@ -6,6 +6,8 @@
 #include "TreeTraversals/InorderTraversal.h"
 #include <iostream>
 
+using namespace std;
+
 /**
  * @return The height of the binary tree. Recall that the height of a binary
  *  tree is just the length of the longest path from the root to a leaf, and
@@ -29,6 +31,7 @@ int BinaryTree<T>::height(const Node* subRoot) const
     // Base case
     if (subRoot == NULL)
         return -1;
+
 
     // Recursive definition
     return 1 + std::max(height(subRoot->left), height(subRoot->right));
@@ -78,7 +81,23 @@ void BinaryTree<T>::printLeftToRight(const Node* subRoot) const
     template <typename T>
 void BinaryTree<T>::mirror()
 {
+  mirror(root);
     //your code here
+}
+
+template <typename T>
+void BinaryTree<T>::mirror(Node* subRoot) {
+  if (subRoot == NULL) {
+    return;
+  }
+  mirror(subRoot->left);
+  mirror(subRoot->right);
+  Node * temp = subRoot->left;
+  subRoot->left = subRoot->right;
+  subRoot->right = temp;
+
+
+
 }
 
 
@@ -88,11 +107,19 @@ void BinaryTree<T>::mirror()
  *  nondecreasing list output values, and false otherwise. This is also the
  *  criterion for a binary tree to be a binary search tree.
  */
+
+ //every element after in either equal to or greater than the prev one
 template <typename T>
 bool BinaryTree<T>::isOrderedIterative() const
 {
-    // your code here
-    return false;
+    InorderTraversal<int>  a(root);
+    int previousElem;
+    for (TreeTraversal<int>:: Iterator i = a.begin(); i != a.end(); ++i) {
+      if ((*i)->elem >= previousElem) {
+        previousElem = (*i)->elem;
+      } else {return false;}
+    }
+    return true;
 }
 
 /**
@@ -104,8 +131,28 @@ bool BinaryTree<T>::isOrderedIterative() const
 template <typename T>
 bool BinaryTree<T>::isOrderedRecursive() const
 {
-    // your code here
-    return false;
+  std::vector<T> vector;
+  // Node* tmp;
+   isOrderedRecursive(root, vector);
+   for (unsigned i = 0; i < vector.size() - 1; ++i) {
+     // tmp = queue.front();
+     // queue.pop();
+     if (vector[i] >= vector[i + 1]) {
+       return false;
+     }
+   }
+   return true;
+}
+
+//helper
+template <typename T>
+void BinaryTree<T>::isOrderedRecursive(Node *subRoot, std::vector<T>& treeVector) const{
+  if (subRoot == NULL) {
+    return;
+  }
+  isOrderedRecursive(subRoot->left, treeVector);
+  treeVector.push_back(subRoot->elem);
+  isOrderedRecursive(subRoot->right, treeVector);
 }
 
 
@@ -120,8 +167,27 @@ bool BinaryTree<T>::isOrderedRecursive() const
 template <typename T>
 void BinaryTree<T>::getPaths(std::vector<std::vector<T>>& paths) const
 {
-    // your code here
+    std:: vector<T> temp;
+    getPaths(paths, temp, root);
+    return;
 }
+
+//helper
+template <typename T>
+void BinaryTree<T>::getPaths(std::vector<std::vector<T>>& path,
+  std::vector<T>  singlePath, Node * subRoot) const {
+    if (subRoot == NULL) return;
+
+    singlePath.push_back(subRoot->elem);
+    if (!subRoot->right && !subRoot->left) {
+      path.push_back(singlePath);
+      //go up one node for next path
+      singlePath.pop_back();
+    }
+    getPaths(path, singlePath, subRoot->left);
+    getPaths(path, singlePath, subRoot->right);
+}
+
 
 
 /**
@@ -136,6 +202,16 @@ template <typename T>
 int BinaryTree<T>::sumDistances() const
 {
     // your code here
-    return -1;
+    int zed = 0;
+    return sumDistances(root, zed);
 }
 
+template <typename T>
+int BinaryTree<T>::sumDistances(Node* subRoot, int currentDistance) const {
+  if (subRoot == NULL) return 0;
+  int returnDistance = currentDistance + sumDistances(subRoot->left, currentDistance + 1)
+    + sumDistances(subRoot->left, currentDistance + 1);
+
+
+  return returnDistance;
+}
