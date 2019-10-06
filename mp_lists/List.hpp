@@ -6,9 +6,9 @@
 template <class T>
 List<T>::List() {
   // @TODO: graded in MP3.1
-    ListNode* head_ = NULL;
-    ListNode* tail_ = NULL;
-    length_ = 0;
+     head_ = NULL;
+     tail_ = NULL;
+     length_ = 0;
 }
 
 /**
@@ -17,8 +17,7 @@ List<T>::List() {
  */
 template <typename T>
 typename List<T>::ListIterator List<T>::begin() const {
-  // @TODO: graded in MP3.1
-  return List<T>::ListIterator(NULL);
+  return List<T>::ListIterator(head_);
 }
 
 /**
@@ -26,7 +25,6 @@ typename List<T>::ListIterator List<T>::begin() const {
  */
 template <typename T>
 typename List<T>::ListIterator List<T>::end() const {
-  // @TODO: graded in MP3.1
   return List<T>::ListIterator(NULL);
 }
 
@@ -38,6 +36,8 @@ typename List<T>::ListIterator List<T>::end() const {
 template <typename T>
 void List<T>::_destroy() {
   ListNode * tmp;
+  //ListNode * current;
+  //current = head_;
   /// @todo Graded in MP3.1
   while (head_ != NULL) {
     tmp = head_->next;
@@ -46,6 +46,7 @@ void List<T>::_destroy() {
   }
   head_ = NULL;
   tail_ = NULL;
+  tmp = NULL;
 
 }
 
@@ -61,9 +62,9 @@ void List<T>::insertFront(T const & ndata) {
   /// @todo Graded in MP3.1
   ListNode * newNode = new ListNode(ndata);
   if (length_ > 0) {
-    //null is now new Node
+    //null is now new Node1
     head_->prev = newNode;
-    //newNode points to old head
+    //newNode points to old head1
     newNode->next = head_;
     //making newNode head of list
     head_ = newNode;
@@ -120,17 +121,21 @@ if (length_ > 0) {
  */
 template <typename T>
 typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
-  if (splitPoint >= length_ || splitPoint < 0) { return start;}
+  if ( splitPoint < 0) { return start;}
   /// @todo Graded in MP3.1
   ListNode * curr = start;
-  for (int i = 0; i < splitPoint; ++i) {
+  int holdLength = length_;
+  for (int i = 0; i < splitPoint; i++) {
 
     curr = curr->next;
 
   }
   curr->prev->next = NULL;
   curr->prev = NULL;
+  //head_ = curr;
 
+// start = curr;
+// delete curr;
   return curr;
 }
 
@@ -144,6 +149,7 @@ typename List<T>::ListNode * List<T>::split(ListNode * start, int splitPoint) {
  * be moved more than once.
  */
 template <typename T>
+
 void List<T>::waterfall() {
   /// @todo Graded in MP3.1
   ListNode * curr = head_;

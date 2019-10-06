@@ -98,7 +98,7 @@ List<T> List<T>::split(int splitPoint) {
         length_ = splitPoint;
     }
 
-    // set up the returned list
+    // set up the returned list1
     List<T> ret;
     ret.head_ = secondHead;
     ret.tail_ = secondHead;
