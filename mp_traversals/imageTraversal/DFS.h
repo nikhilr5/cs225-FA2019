@@ -8,6 +8,7 @@
 #include <cmath>
 #include <list>
 #include <stack>
+#include <queue>
 
 #include "../cs225/PNG.h"
 #include "../Point.h"
@@ -32,7 +33,15 @@ public:
   Point peek() const;
   bool empty() const;
 
+  PNG* getPNG();
+  double getTolerance();
+
 private:
 	/** @todo [Part 1] */
 	/** add private members here*/
+  PNG png_;
+  double tolerance_;
+  Point start_;
+  std::queue<Point> pQueue;
+  bool** visited;
 };

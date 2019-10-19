@@ -1,6 +1,7 @@
 #include <cmath>
 #include <iterator>
 #include <iostream>
+#include <list>
 
 #include "../cs225/HSLAPixel.h"
 #include "../cs225/PNG.h"
@@ -32,17 +33,88 @@ double ImageTraversal::calculateDelta(const HSLAPixel & p1, const HSLAPixel & p2
  * Default iterator constructor.
  */
 ImageTraversal::Iterator::Iterator() {
-  /** @todo [Part 1] */
+  current = Point(0,0);
+}
+
+ImageTraversal:: Iterator::Iterator(ImageTraversal & traversal, Point start) {
+  traversal_ = &traversal;
+  current = start;
+
 }
 
 /**
  * Iterator increment opreator.
  *
+ *going in correct order
  * Advances the traversal of the image.
  */
 ImageTraversal::Iterator & ImageTraversal::Iterator::operator++() {
-  /** @todo [Part 1] */
-  return *this;
+
+  current = traversal_->pop();
+  Point right(current.x + 1, current.y);
+  Point left(current.x - 1, current.y);
+  Point below(current.x , current.y - 1);
+  Point above(current.x + 1, current.y + 1);
+  HSLAPixel & startPixel = traversal_->png_.getPixel(traversal_->start_.x, traversal_->start_.y);
+
+//right
+  if(right.x < traversal_->png_.width()) {
+    if (traversal_->visited[right.x][right.y] == false) {
+      HSLAPixel & pixel = traversal_->png_.getPixel(right.x, right.y);
+      double delta = calculateDelta(startPixel, pixel);
+      if (delta <= traversal_->tolerance_) {
+        traversal_->add(right);
+      }
+    }
+  }
+
+  //below
+  if(below.y < traversal_->png_.height()) {
+    if (traversal_->visited[current.x][current.y - 1] == false) {
+      HSLAPixel & pixel = traversal_->png_.getPixel(current.x, current.y - 1);
+      double delta = calculateDelta(startPixel, pixel);
+      if (delta <= traversal_->tolerance_) {
+        traversal_->add(below);
+      }
+    }
+  }
+
+  //left
+  if(left.x > 0) {
+    if (traversal_->visited[current.x - 1][current.y] == false) {
+      HSLAPixel & pixel = traversal_->png_.getPixel(current.x - 1, current.y);
+      double delta = calculateDelta(startPixel, pixel);
+      if (delta <= traversal_->tolerance_) {
+        traversal_->add(left);
+      }
+    }
+  }
+
+  //above
+  if(above.y > 0) {
+    if (traversal_->visited[current.x][current.y + 1] == false) {
+      HSLAPixel & pixel = traversal_->png_.getPixel(current.x, current.y + 1);
+      double delta = calculateDelta(startPixel, pixel);
+      if (delta <= traversal_->tolerance_) {
+        traversal_->add(above);
+      }
+    }
+  }
+
+
+  traversal_->visited[current.x][current.y] = true;
+  current = traversal_->peek();
+
+
+  while(!(traversal_->pList.empty())){
+    if (traversal_->visited[current.x][current.y] == true) {
+      current = traversal_->pop();
+      current = traversal_->peek();
+    } else { break;}
+  }
+
+return *this;
+
 }
 
 /**
@@ -52,7 +124,7 @@ ImageTraversal::Iterator & ImageTraversal::Iterator::operator++() {
  */
 Point ImageTraversal::Iterator::operator*() {
   /** @todo [Part 1] */
-  return Point(0, 0);
+  return this->current;
 }
 
 /**
@@ -62,6 +134,6 @@ Point ImageTraversal::Iterator::operator*() {
  */
 bool ImageTraversal::Iterator::operator!=(const ImageTraversal::Iterator &other) {
   /** @todo [Part 1] */
-  return false;
+  bool returnOpp = (this->current == other.current);
+  return !returnOpp;
 }
-
