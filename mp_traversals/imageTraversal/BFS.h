@@ -32,8 +32,9 @@ public:
   Point peek() const;
   bool empty() const;
 
-  PNG* getPNG();
-  double getTolerance();
+
+  bool getVisited(unsigned x, unsigned y);
+  void setVisited(unsigned x, unsigned y);
 
 private:
   /** @todo [Part 1] */

@@ -33,12 +33,18 @@ double ImageTraversal::calculateDelta(const HSLAPixel & p1, const HSLAPixel & p2
  * Default iterator constructor.
  */
 ImageTraversal::Iterator::Iterator() {
-  current = Point(0,0);
+  traversal_ = NULL;
+  isEmpty = true;
 }
 
-ImageTraversal:: Iterator::Iterator(ImageTraversal & traversal, Point start) {
+ImageTraversal:: Iterator::Iterator(ImageTraversal & traversal, Point start, PNG png, double tolerance, bool ** visited) {
   traversal_ = &traversal;
-  current = start;
+  start_ = start;
+  isEmpty = false;
+  current = traversal_->peek();
+  png_ = png;
+  visited_ = visited;
+  tolerance_ = tolerance;
 
 }
 
@@ -49,72 +55,83 @@ ImageTraversal:: Iterator::Iterator(ImageTraversal & traversal, Point start) {
  * Advances the traversal of the image.
  */
 ImageTraversal::Iterator & ImageTraversal::Iterator::operator++() {
+  //std:: cout<< "(" << current.x <<" , " <<current.y << ")" << std:: endl << std::endl;
+  Point tempCur = traversal_->pop();
+  traversal_->setVisited(current.x, current.y);
 
-  current = traversal_->pop();
-  Point right(current.x + 1, current.y);
-  Point left(current.x - 1, current.y);
-  Point below(current.x , current.y - 1);
-  Point above(current.x + 1, current.y + 1);
-  HSLAPixel & startPixel = traversal_->png_.getPixel(traversal_->start_.x, traversal_->start_.y);
+
+  Point right(tempCur.x + 1, tempCur.y);
+  Point left(tempCur.x - 1, tempCur.y);
+  // 0,0 is upper left
+  Point below(tempCur.x , tempCur.y + 1);
+  Point above(tempCur.x, tempCur.y - 1);
+  HSLAPixel & startPixel = png_.getPixel(start_.x, start_.y);
 
 //right
-  if(right.x < traversal_->png_.width()) {
-    if (traversal_->visited[right.x][right.y] == false) {
-      HSLAPixel & pixel = traversal_->png_.getPixel(right.x, right.y);
+  if(right.x < png_.width()) {
+    //std:: cout << "gettting in right" <<  std::endl;
+      HSLAPixel & pixel = png_.getPixel(right.x, right.y);
       double delta = calculateDelta(startPixel, pixel);
-      if (delta <= traversal_->tolerance_) {
+      //std:: cout << "delta: " <<  delta << " tolerance : " << tolerance_ << std::endl;
+      if (delta < tolerance_) {
+        //std:: cout << "tolerance right" <<  std::endl;
         traversal_->add(right);
       }
-    }
+
   }
 
   //below
-  if(below.y < traversal_->png_.height()) {
-    if (traversal_->visited[current.x][current.y - 1] == false) {
-      HSLAPixel & pixel = traversal_->png_.getPixel(current.x, current.y - 1);
+  if(below.y < png_.height()) {
+    //std:: cout << "gettting in below" <<  std::endl;
+      HSLAPixel & pixel = png_.getPixel(below.x, below.y);
       double delta = calculateDelta(startPixel, pixel);
-      if (delta <= traversal_->tolerance_) {
+      //std:: cout << "delta: " <<  delta << " tolerance : " << tolerance_ << std::endl;
+      if (delta < tolerance_) {
+        //std:: cout << "tolerance below" <<  std::endl;
         traversal_->add(below);
       }
-    }
+
   }
 
   //left
-  if(left.x > 0) {
-    if (traversal_->visited[current.x - 1][current.y] == false) {
-      HSLAPixel & pixel = traversal_->png_.getPixel(current.x - 1, current.y);
+  if(left.x < png_.width()) {
+    //std:: cout << "gettting in left" <<  std::endl;
+      HSLAPixel & pixel = png_.getPixel(left.x, left.y);
       double delta = calculateDelta(startPixel, pixel);
-      if (delta <= traversal_->tolerance_) {
+      //std:: cout << "delta: " <<  delta << " tolerance : " << tolerance_ << std::endl;
+      if (delta < tolerance_) {
+        //std:: cout << "tolerance left" <<  std::endl;
         traversal_->add(left);
       }
-    }
+
   }
 
   //above
-  if(above.y > 0) {
-    if (traversal_->visited[current.x][current.y + 1] == false) {
-      HSLAPixel & pixel = traversal_->png_.getPixel(current.x, current.y + 1);
+  if(above.y < png_.height()) {
+    //std:: cout << "gettting in above" <<  std::endl;
+      HSLAPixel & pixel = png_.getPixel(above.x, above.y);
       double delta = calculateDelta(startPixel, pixel);
-      if (delta <= traversal_->tolerance_) {
+      //std:: cout << "delta: " <<  delta << " tolerance : " << tolerance_ << std::endl;
+      if (delta < tolerance_) {
+        //std:: cout << "tolerance above" <<  std::endl;
         traversal_->add(above);
       }
-    }
+
   }
 
+  while(!(traversal_->empty()) && (traversal_->getVisited(traversal_->peek().x, traversal_->peek().y))){
+    //std:: cout << "front: " << traversal_->peek()
+    traversal_->pop();
 
-  traversal_->visited[current.x][current.y] = true;
-  current = traversal_->peek();
-
-
-  while(!(traversal_->pList.empty())){
-    if (traversal_->visited[current.x][current.y] == true) {
-      current = traversal_->pop();
-      current = traversal_->peek();
-    } else { break;}
   }
-
-return *this;
-
+  if (traversal_->empty()) {
+    isEmpty = true;
+    return *this;
+  } else {
+    current = traversal_->peek();
+    start_ = current;
+    return *this;
+}
 }
 
 /**
@@ -124,7 +141,7 @@ return *this;
  */
 Point ImageTraversal::Iterator::operator*() {
   /** @todo [Part 1] */
-  return this->current;
+  return current;
 }
 
 /**
@@ -134,6 +151,6 @@ Point ImageTraversal::Iterator::operator*() {
  */
 bool ImageTraversal::Iterator::operator!=(const ImageTraversal::Iterator &other) {
   /** @todo [Part 1] */
-  bool returnOpp = (this->current == other.current);
+  bool returnOpp = isEmpty && other.isEmpty;
   return !returnOpp;
 }

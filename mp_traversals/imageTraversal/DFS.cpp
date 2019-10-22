@@ -41,7 +41,7 @@ DFS::DFS(const PNG & png, const Point & start, double tolerance) {
       visited[i][j] = false;
     }
   }
-
+  visited[start.x] [start.y] = true;
   pQueue.push(start);
 
 }
@@ -51,7 +51,7 @@ DFS::DFS(const PNG & png, const Point & start, double tolerance) {
  */
 ImageTraversal::Iterator DFS::begin() {
   DFS * a = new DFS(png_, start_, tolerance_);
-  ImageTraversal:: Iterator returnRattor(*a, start_);
+  ImageTraversal:: Iterator returnRattor(*a, start_, png_, tolerance_, visited);
   return returnRattor;
 
 }
@@ -75,7 +75,7 @@ void DFS::add(const Point & point) {
  * Removes and returns the current Point in the traversal.
  */
 Point DFS::pop() {
-  Point returnP = pQueue.front();
+  Point returnP = pQueue.top();
   //remove from queue
   pQueue.pop();
 
@@ -86,7 +86,7 @@ Point DFS::pop() {
  * Returns the current Point in the traversal.
  */
 Point DFS::peek() const {
-  return pQueue.front();
+  return pQueue.top();
 }
 
 /**
@@ -98,11 +98,9 @@ bool DFS::empty() const {
 }
 
 //added methods
-
-PNG* DFS:: getPNG(){
-  return &png_;
+bool DFS:: getVisited(unsigned x, unsigned y) {
+  return visited[x][y];
 }
-
-double DFS:: getTolerance() {
-  return tolerance_;
+void DFS ::setVisited(unsigned x, unsigned y) {
+  visited[x][y] = true;
 }

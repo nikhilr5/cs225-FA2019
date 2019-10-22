@@ -41,7 +41,7 @@ BFS::BFS(const PNG & png, const Point & start, double tolerance) {
       visited[i][j] = false;
     }
   }
-
+  visited[start.x] [start.y] = true;
   q_Point.push(start);
 }
 
@@ -50,7 +50,7 @@ BFS::BFS(const PNG & png, const Point & start, double tolerance) {
  */
 ImageTraversal::Iterator BFS::begin() {
   BFS * a = new BFS(png_, start_, tolerance_);
-   ImageTraversal:: Iterator returnRattor(*a, start_);
+   ImageTraversal:: Iterator returnRattor(*a, start_, png_, tolerance_, visited);
    return returnRattor;
 }
 
@@ -93,10 +93,11 @@ bool BFS::empty() const {
 }
 
 //added
-PNG* BFS:: getPNG(){
-  return &png_;
+
+bool BFS:: getVisited(unsigned x, unsigned y) {
+  return visited[x][y];
 }
 
-double BFS:: getTolerance() {
-  return tolerance_;
+void BFS ::setVisited(unsigned x, unsigned y) {
+  visited[x][y] = true;
 }

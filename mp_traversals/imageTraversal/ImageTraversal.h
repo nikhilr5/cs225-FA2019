@@ -39,14 +39,18 @@ public:
     /** @todo [Part 1] */
     /** add member functions if neccesary*/
 
-    Iterator(ImageTraversal & traversal, Point start);
+    Iterator(ImageTraversal & traversal, Point start, PNG png, double tolerance, bool ** visited);
 
   private:
     /** @todo [Part 1] */
     /** add private members here if neccesary*/
     ImageTraversal * traversal_;
     Point current;
-
+    bool isEmpty;
+    bool** visited_;
+    PNG png_;
+    double tolerance_;
+    Point start_;
 
 
   };
@@ -85,15 +89,10 @@ public:
   virtual bool empty() const = 0;
 
   //methods
-  virtual PNG * getPNG() = 0;
-  virtual double getTolerance() = 0;
+  virtual bool getVisited(unsigned x, unsigned y) = 0;
+  virtual void setVisited(unsigned x, unsigned y) = 0;
 
 private:
   static double calculateDelta(const HSLAPixel & p1, const HSLAPixel & p2);
 
-  bool** visited;
-  std::list<Point> pList;
-  PNG png_;
-  double tolerance_;
-  Point start_;
 };

@@ -33,15 +33,15 @@ public:
   Point peek() const;
   bool empty() const;
 
-  PNG* getPNG();
-  double getTolerance();
 
+  bool getVisited(unsigned x, unsigned y);
+  void setVisited(unsigned x, unsigned y);
 private:
 	/** @todo [Part 1] */
 	/** add private members here*/
   PNG png_;
   double tolerance_;
   Point start_;
-  std::queue<Point> pQueue;
+  std::stack<Point> pQueue;
   bool** visited;
 };

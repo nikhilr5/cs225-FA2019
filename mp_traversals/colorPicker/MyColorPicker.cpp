@@ -11,6 +11,9 @@ using namespace cs225;
  * Using your own algorithm
  */
 HSLAPixel MyColorPicker::getColor(unsigned x, unsigned y) {
-  /* @todo [Part 3] */
-  return HSLAPixel();
+  unsigned hueNum = 2 * x + ((3 * x) * y);
+  double hue = hueNum % 250;
+
+  HSLAPixel pixel(hue, .7, .25);
+  return pixel;
 }
