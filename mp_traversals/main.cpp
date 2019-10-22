@@ -23,10 +23,10 @@ int main() {
   PNG shrek;
   shrek.readFromFile("shrek.png");
 
-  FloodFillImage image(shrek);
+  FloodFilledImage image(shrek);
 
-  DFS dfs (shrek, Point(77, 98), 0.3);
-  BFS bfs(shrek, Point(44,23), 0.3);
+  DFS dfs (shrek, Point(77, 98), 1);
+  BFS bfs(shrek, Point(44,23), 1);
 
   MyColorPicker myColor;
 

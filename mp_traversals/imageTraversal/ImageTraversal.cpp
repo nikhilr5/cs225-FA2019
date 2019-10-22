@@ -129,7 +129,7 @@ ImageTraversal::Iterator & ImageTraversal::Iterator::operator++() {
     return *this;
   } else {
     current = traversal_->peek();
-    start_ = current;
+    //start_ = current;
     return *this;
 }
 }

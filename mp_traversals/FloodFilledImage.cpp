@@ -60,10 +60,14 @@ Animation FloodFilledImage::animate(unsigned frameInterval) const {
 
   for (unsigned i = 0; i < vTraversal.size(); i++) {
     animation.addFrame(temp);
-
-    for (const Point & p : *vTraversal[i]) {
-      HSLAPixel & cur = temp.getPixel(p.x, p.y);
-      cur = vColorPicker[i]->getColor(p.x,p.y);
+    ImageTraversal *tempTrav = vTraversal[i];
+    ColorPicker* tempColor = vColorPicker[i];
+    for (ImageTraversal::Iterator it = tempTrav->begin(); it != tempTrav->end(); ++it) {
+      unsigned x = (*it).x;
+      unsigned y = (*it).y;
+      
+      HSLAPixel & cur = temp.getPixel(x, y);
+      cur = tempColor->getColor(x,y);
       count++;
       if (count % frameInterval == 0) {
         animation.addFrame(temp);
