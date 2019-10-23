@@ -25,8 +25,8 @@ int main() {
 
   FloodFilledImage image(shrek);
 
-  DFS dfs (shrek, Point(77, 98), 1);
-  BFS bfs(shrek, Point(44,23), 1);
+  DFS dfs (shrek, Point(77, 98), 0.3);
+  BFS bfs(shrek, Point(97,23), 0.3);
 
   MyColorPicker myColor;
 
