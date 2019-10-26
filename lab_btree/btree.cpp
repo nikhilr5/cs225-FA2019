@@ -43,7 +43,21 @@ V BTree<K, V>::find(const BTreeNode* subroot, const K& key) const
      * anywhere in the tree and return the default V.
      */
 
-    return V();
+     if (first_larger_idx < subroot->elements.size()) {
+       DataPair element1 = subroot->elements[first_larger_idx];
+       if (element1.key == key){
+         return element1.value;
+       }
+     }
+
+     if (subroot->is_leaf) {
+       //no value
+       return V();
+     } else {
+       BTreeNode * child = subroot->children[first_larger_idx];
+       //recursion
+       return find(child, key);
+     }
 }
 
 /**
@@ -80,6 +94,8 @@ void BTree<K, V>::insert(const K& key, const V& value)
 template <class K, class V>
 void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
 {
+
+
     /* Assume we are splitting the 3 6 8 child.
      * We want the following to happen.
      *     | 2 |
@@ -141,6 +157,24 @@ void BTree<K, V>::split_child(BTreeNode* parent, size_t child_idx)
 
 
     /* TODO Your code goes here! */
+
+    parent->children.insert(child_itr, new_right);
+    parent->elements.insert(elem_itr, *mid_elem_itr);
+
+    BTreeNode * temp = new_left;
+
+
+    //second halfs
+    new_right->elements.assign(mid_elem_itr + 1, temp->elements.end());
+    if (new_right->is_leaf == false) {
+      new_right->children.assign(mid_child_itr, temp->children.end());
+    }
+
+    // first half
+    new_left->elements.assign(temp->elements.begin(), mid_elem_itr);
+    if (new_left->is_leaf == false) {
+      new_left->children.assign(temp->children.begin(), mid_child_itr);
+    }
 }
 
 /**
@@ -165,4 +199,18 @@ void BTree<K, V>::insert(BTreeNode* subroot, const DataPair& pair)
     size_t first_larger_idx = insertion_idx(subroot->elements, pair);
 
     /* TODO Your code goes here! */
+    if (subroot->is_leaf) {
+      auto insertSpot = subroot->elements.begin() + first_larger_idx;
+      subroot->elements.insert(insertSpot, pair);
+      //done
+    } else {
+      BTreeNode * first_child = subroot->children[first_larger_idx];
+      insert(first_child, pair);
+      unsigned int childSize = first_child->elements.size();
+      if (childSize >= order){
+        split_child(subroot, first_larger_idx);
+      }
+    }
+    return;
+
 }

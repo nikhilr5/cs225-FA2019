@@ -338,13 +338,27 @@ class BTree
  * the sorted order of elements. If val occurs in elements, then this returns
  * the index of val in elements.
  */
+
+ using namespace std;
+
+
 template <class T, class C>
 size_t insertion_idx(const std::vector<T>& elements, const C& val)
 {
-    /* TODO Your code goes here! */
+  //linear search
 
-    return 5;
+  for (size_t i = 0; i < elements.size(); i++) {
+    if (val < elements[i] || elements[i] == val) {
+      return i;
+    }
+
+  }
+  //if val greater than all elemnts insertion spot last
+  return elements.size();
+
 }
+
+
 
 #include "btree_given.cpp"
 #include "btree.cpp"
