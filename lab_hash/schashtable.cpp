@@ -3,6 +3,12 @@
  * Implementation of the SCHashTable class.
  */
 
+using namespace hashes;
+
+using std::pair;
+
+using std:: list;
+
 #include "schashtable.h"
 
 template <class K, class V>
@@ -49,41 +55,53 @@ SCHashTable<K, V>::SCHashTable(SCHashTable<K, V> const& other)
 template <class K, class V>
 void SCHashTable<K, V>::insert(K const& key, V const& value)
 {
+  unsigned int hash1 = hash(key,size);
+  pair <K,V> addPair(key,value);
 
-    /**
-     * @todo Implement this function.
-     *
-     */
+  table[hash1].push_front(addPair);
+
+  elems++;
+
+  if(shouldResize()) {
+    resizeTable();
+  }
 }
 
 template <class K, class V>
 void SCHashTable<K, V>::remove(K const& key)
 {
-    typename std::list<std::pair<K, V>>::iterator it;
-    /**
-     * @todo Implement this function.
-     *
-     * Please read the note in the lab spec about list iterators and the
-     * erase() function on std::list!
-     */
-    (void) key; // prevent warnings... When you implement this function, remove this line.
+    unsigned int hash1 = hash(key,size);
+
+    for (typename std::list< pair<K,V> >::iterator it = table[hash1].begin();
+          it != table[hash1].end(); ++it) {
+            if (it->first == key) {
+              table[hash1].erase(it);
+              break;
+            }
+          }
+
 }
 
 template <class K, class V>
 V SCHashTable<K, V>::find(K const& key) const
 {
-
-    /**
-     * @todo: Implement this function.
-     */
-
+  unsigned hash1 = hash(key, size);
+  for (typename list< pair<K,V> >::iterator it = table[hash1].begin();
+        it != table[hash1].end(); ++it) {
+          // it->first gets you first thing of pair (key)
+          if(it->first == key) {
+            return it->second;
+          }
+        }
     return V();
 }
+
 
 template <class K, class V>
 V& SCHashTable<K, V>::operator[](K const& key)
 {
     size_t idx = hashes::hash(key, size);
+
     typename std::list<std::pair<K, V>>::iterator it;
     for (it = table[idx].begin(); it != table[idx].end(); it++) {
         if (it->first == key)
@@ -125,7 +143,7 @@ void SCHashTable<K, V>::clear()
 template <class K, class V>
 void SCHashTable<K, V>::resizeTable()
 {
-    typename std::list<std::pair<K, V>>::iterator it;
+
     /**
      * @todo Implement this function.
      *
@@ -134,4 +152,18 @@ void SCHashTable<K, V>::resizeTable()
      *
      * @hint Use findPrime()!
      */
+     size_t newSize = findPrime(2 * size);
+     std::list<std::pair<K, V>>* table2 = new list<pair<K,V>>[newSize];
+     for (size_t i = 0; i < size; i++) {
+       for (typename list< pair<K,V> >::iterator it = table[i].begin();
+            it != table[i].end(); ++it) {
+              //shift everything to newTable
+              size_t hash1 = hash(it->first, newSize);
+              std::pair<K,V> pair2(it->first, it->second);
+              table2[hash1].push_front(pair2);
+         }
+       }
+       size = newSize;
+       delete[] table;
+       table = table2;
 }

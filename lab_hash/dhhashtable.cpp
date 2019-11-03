@@ -3,6 +3,9 @@
  * Implementation of the DHHashTable class.
  */
 
+ using std:: pair;
+ using namespace hashes;
+
 #include "dhhashtable.h"
 
 template <class K, class V>
@@ -73,6 +76,21 @@ template <class K, class V>
 void DHHashTable<K, V>::insert(K const& key, V const& value)
 {
 
+  size_t hash1 = hash(key, size);
+
+  size_t hash2 = secondary_hash(key, size);
+
+  while (table[hash1] != NULL) {
+    hash1 = (hash1 + hash2) % size;
+  }
+
+  table[hash1] = new pair<K,V>(key,value);
+  should_probe[hash1] = true;
+
+  elems++;
+  if(shouldResize()) {
+    resizeTable();
+  }
     /**
      * @todo Implement this function.
      *
@@ -81,25 +99,41 @@ void DHHashTable<K, V>::insert(K const& key, V const& value)
      *  forget to mark the cell for probing with should_probe!
      */
 
-    (void) key;   // prevent warnings... When you implement this function, remove this line.
-    (void) value; // prevent warnings... When you implement this function, remove this line.
 }
 
 template <class K, class V>
 void DHHashTable<K, V>::remove(K const& key)
 {
-    /**
-     * @todo Implement this function
-     */
+  int index = findIndex(key);
+  if (index == 1) {
+    return;
+  } else {
+    elems--;
+    delete table[index];
+    table[index] = NULL;
+  }
 }
 
 template <class K, class V>
 int DHHashTable<K, V>::findIndex(const K& key) const
 {
-    /**
-     * @todo Implement this function
-     */
-    return -1;
+  size_t hash1 = hash(key, size);
+  size_t hashOneHolder = hash1;
+  size_t hash2 = secondary_hash(key, size);
+
+  while(should_probe[hash1]) {
+    if(table[hash1] != NULL) {
+      K & compare = table[hash1]->first;
+      if (compare == key)
+        return hash1;
+    }
+    hash1 = (hash1 + hash2) % size;
+    //circled around
+    if (hash1 == hashOneHolder) {
+      break;
+    }
+  }
+  return -1;
 }
 
 template <class K, class V>
@@ -160,7 +194,7 @@ void DHHashTable<K, V>::resizeTable()
             size_t h = hashes::hash(table[slot]->first, newSize);
             size_t jump = hashes::secondary_hash(table[slot]->first, newSize);
             size_t i = 0;
-            size_t idx = h; 
+            size_t idx = h;
             while (temp[idx] != NULL)
             {
                 ++i;
