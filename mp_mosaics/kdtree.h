@@ -261,15 +261,15 @@ class KDTree
      */
      KDTreeNode* makeTree(vector<Point<Dim>>& newPoints, int left, int right, int dimension);
 
-     Point<Dim> find(vector<Point<Dim>>& newPoints, int left, int right, int k, int dimension);
+     Point<Dim> find(vector<Point<Dim>>& newPoints, int left, int right, size_t k, int dimension);
 
-     int findPosition(vector<Point<Dim>>& newPoints, int left, int right, int pivotIndex, int dimension);
+     int findPosition(vector<Point<Dim>>& newPoints, int left, int right, size_t pivotIndex, int dimension);
 
      void helpFindNearNeigh(KDTreeNode* current, int dimension, Point<Dim> &query, Point<Dim> &best) const;
 
       void copy(KDTreeNode *& curr, KDTreeNode*& other);
 
-      void destory(KDTreeNode* subRoot);
+      void destory(KDTreeNode*& subRoot);
 };
 
 #include "kdtree.hpp"

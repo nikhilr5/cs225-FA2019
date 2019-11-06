@@ -33,23 +33,18 @@ bool KDTree<Dim>::shouldReplace(const Point<Dim>& target,
 {
 
      double totPot = 0.0;
-     int curDim = Dim;
-     int counter = 0;
-     while (counter < curDim) {
-       double dimDistance = target[counter] - potential[counter];
+     for (int i = 0; i < Dim; i++) {
+       double dimDistance = target[i] - potential[i];
        dimDistance = dimDistance * dimDistance;
        totPot = totPot + dimDistance;
-       counter++;
      }
      //totPot = sqrt(totPot);
 
      double totBest = 0.0;
-     int counter2  = 0;
-     while (counter2 < curDim) {
-       double dimDistance = target[counter] - currentBest[counter];
+     for (int i = 0; i < Dim; i++) {
+       double dimDistance = target[i] - currentBest[i];
        dimDistance = dimDistance * dimDistance;
        totBest = totBest + dimDistance;
-       counter2++;
      }
      //totBest = sqrt(totBest);
 
@@ -99,88 +94,110 @@ template <int Dim>
 Point<Dim> KDTree<Dim>::findNearestNeighbor(const Point<Dim>& query) const
 {
   Point<Dim> start = root->point;
+  //since query cosnt
   Point<Dim> temp = query;
 
   helpFindNearNeigh(root, 0, temp, start);
+
+  //start becomes the best matching neighbor
   return start;
 }
 
 //helper
 template <int Dim>
 void KDTree<Dim>::helpFindNearNeigh(KDTreeNode* current, int dimension, Point<Dim> &query, Point<Dim> &best) const {
+
   if (current == NULL) {
     return;
   }
 
-  KDTreeNode* next;
-  KDTreeNode* other;
+  KDTreeNode* nextNode;
+  KDTreeNode* possNode;
 
-  if (smallerDimVal(current->point, query, dimension)) {
-    next = current->right;
-    other = current->left;
+  if (smallerDimVal(query, current->point, dimension)) {
+    //since value at point's dimension is greater than query move to left of sorted kd tree
+    nextNode = current->left;
+    possNode = current->right;
   } else {
-    next = current->left;
-    other = current->right;
+    nextNode = current->right;
+    possNode = current->left;
   }
 
+  //goes to bottom of tree first
+  helpFindNearNeigh(nextNode, (dimension + 1) % Dim, query, best);
+
+  //checks if current point is closer to query than the current best
   if (shouldReplace(query, best, current->point)) {
-    helpFindNearNeigh(next, (dimension + 1) % Dim, query, best);
+    //replaces if so
+    best = current->point;
   }
 
-  double radius = 0.0;
-  double distance;
+  double area = 0.0;
+  double curPDistance = 0.0;
   for (int i = 0; i < Dim; ++i) {
-    radius = radius + ((query[i] - best[i]) * (query[i] - best[i]));
+    //creates area of current best to query
+    area = area + ((query[i] - best[i]) * (query[i] - best[i]));
   }
 
-  distance = (current->point[dimension] - query[dimension]) * (current->point[dimension] - query[dimension]);
+  //gets the distance of the current point to query
+  curPDistance = (current->point[dimension] - query[dimension]) * (current->point[dimension] - query[dimension]);
 
-  if (radius >= distance) {
-    helpFindNearNeigh(other, (dimension + 1) % Dim, query, best);
+  //if distance is inside that area
+  if (curPDistance <= area) {
+    //go down the other part of the tree that hasn't been visited to look at potential options
+    helpFindNearNeigh(possNode, (dimension + 1) % Dim, query, best);
   }
 }
 
 
+//returns position of pivot in vector
+//sorts elements into ones less than pivot and greater than (less than group < pivot < greaterthan group)
 template <int Dim>
-int KDTree<Dim>:: findPosition(vector<Point<Dim>>& newPoints, int left, int right, int pivotIndex, int dimension) {
-  Point<Dim> pivotPoint = newPoints[pivotIndex];
-  Point<Dim> temp = newPoints[pivotIndex];
-  newPoints[pivotIndex] = newPoints[right];
-  newPoints[right] = temp;
+int KDTree<Dim>:: findPosition(vector<Point<Dim>>& newPoints, int left, int right, size_t rotPoint, int dimension) {
+  Point<Dim> rotPointVal = newPoints[rotPoint];
+
+  //sets pivot to end
+  swap(newPoints[rotPoint], newPoints[right]);
+  // Point<Dim> temp = newPoints[pivotIndex];
+  // newPoints[pivotIndex] = newPoints[right];
+  // newPoints[right] = temp;
 
   int holder = left;
+
   for (int i = left; i < right; ++i) {
-    Point<Dim> possSmaller = newPoints[i];
-    if (smallerDimVal(possSmaller, pivotPoint, dimension)) {
-      Point<Dim> temp2 = newPoints[holder];
-      newPoints[holder] = possSmaller;
-      newPoints[i] = temp2;
+    if (smallerDimVal(newPoints[i], rotPointVal, dimension)) {
+      //group ones greater than pivot
+      swap(newPoints[holder], newPoints[i]);
       holder++;
     }
   }
-  Point<Dim> temp3 = newPoints[holder];
-  newPoints[holder] = newPoints[right];
-  newPoints[right] = temp3;
+  swap(newPoints[right], newPoints[holder]);
 
   return holder;
 }
 
+
+
 template <int Dim>
-Point<Dim> KDTree<Dim>::find(vector<Point<Dim>>& newPoints, int left, int right, int k, int dimension) {
+Point<Dim> KDTree<Dim>::find(vector<Point<Dim>>& newPoints, int left, int right, size_t k, int dimension) {
+  //return the kth smallest value in vector
   if(left == right) {
     return newPoints[right];
   }
-  int pivotIndex = (left + right) / 2;
-  int spot = findPosition(newPoints, left, right, pivotIndex, dimension);
+  //start at center
+  size_t rotPoint = findPosition(newPoints, left, right, (left + right) / 2, dimension);
+  //rotPoint how large the element is compared to others in the vector
+  if (rotPoint == k) {
 
-  if (spot == k) {
     return newPoints[k];
-  } else if (spot < k) {
-    pivotIndex++;
-    return find(newPoints, pivotIndex, right, k, dimension);
+  } else if (k < rotPoint) {
+    //move down vec
+    rotPoint--;
+    return find(newPoints, left, rotPoint, k, dimension);
   } else {
-    pivotIndex--;
-    return find(newPoints, left, pivotIndex, k, dimension);
+    //move up
+    rotPoint++;
+    return find(newPoints, rotPoint, right, k, dimension);
   }
 
 }
@@ -189,6 +206,7 @@ template <int Dim>
 typename KDTree<Dim>::KDTreeNode*  KDTree<Dim>:: makeTree(vector<Point<Dim>>& newPoints, int left, int right, int dimension) {
   if(left > right) return NULL;
 
+  // top of root must be the value in btw
   size_t middle = (left + right) / 2;
 
 
@@ -196,6 +214,7 @@ typename KDTree<Dim>::KDTreeNode*  KDTree<Dim>:: makeTree(vector<Point<Dim>>& ne
   KDTreeNode* subRoot = new KDTreeNode(inserter);
   size++;
 
+  //raps dim around so no out of bound
   int newDim = (dimension + 1) % Dim;
 
   subRoot->left = makeTree(newPoints, left, middle - 1, newDim);
@@ -206,12 +225,13 @@ typename KDTree<Dim>::KDTreeNode*  KDTree<Dim>:: makeTree(vector<Point<Dim>>& ne
 }
 
 template <int Dim>
-void KDTree<Dim>:: destory(KDTreeNode* subRoot) {
-  if (root == NULL) return;
+void KDTree<Dim>:: destory(KDTreeNode*& subRoot) {
+  if (subRoot == NULL) return;
 
   destory(subRoot->left);
   destory(subRoot->right);
   delete subRoot;
+  subRoot = NULL;
 }
 
 template <int Dim>
