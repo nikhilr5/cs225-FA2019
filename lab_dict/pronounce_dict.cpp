@@ -14,6 +14,7 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
+#include <map>
 
 using std::string;
 using std::map;
@@ -74,6 +75,26 @@ PronounceDict::PronounceDict(const map<string, vector<string>>& pronun_dict)
  */
 bool PronounceDict::homophones(const string& word1, const string& word2) const
 {
-    /* Your code goes here! */
+    string string1 = word1;
+    string string2 = word2;
+    std:: transform(string1.begin(), string1.end(), string1.begin(), ::toupper);
+    std:: transform(string2.begin(), string2.end(), string2.begin(), :: toupper);
+
+    map<string, vector<string>>::const_iterator lookup = dict.find(string1);
+    map<string, vector<string>>::const_iterator lookupOther = dict.find(string2);
+
+    if (lookup == dict.end() || lookupOther == dict.end()) {
+      return false;
+    }
+
+    if (lookup->second.size() != lookupOther->second.size()) {
+      return false;
+    } else {
+      for (size_t i = 0; i < lookup->second.size(); i++) {
+          if(lookup->second[i] != lookupOther->second[i])
+            return false;
+      }
+    }
     return true;
+
 }

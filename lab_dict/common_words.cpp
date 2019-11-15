@@ -14,6 +14,7 @@
 #include <iostream>
 #include <iterator>
 #include <algorithm>
+#include <map>
 
 using std::string;
 using std::vector;
@@ -21,6 +22,7 @@ using std::ifstream;
 using std::cout;
 using std::endl;
 using std::feof;
+using std::pair;
 
 string remove_punct(const string& str)
 {
@@ -47,13 +49,37 @@ void CommonWords::init_file_word_maps(const vector<string>& filenames)
         // get the corresponding vector of words that represents the current
         // file
         vector<string> words = file_to_vector(filenames[i]);
-        /* Your code goes here! */
+
+
+        //go through vector
+        for (size_t j = 0; j < words.size(); j++) {
+          map<string, unsigned int>::iterator lookup = file_word_maps[i].find(words[j]);
+          if (lookup != file_word_maps[i].end()) {
+            lookup->second++;
+          } else {
+            (file_word_maps[i])[words[j]] = 1;
+          }
+        }
+
     }
 }
 
 void CommonWords::init_common()
 {
-    /* Your code goes here! */
+  for (size_t i = 0; i < file_word_maps.size(); i++) {
+    for(pair<string, unsigned int>  key_val: file_word_maps[i]) {
+      map<string, unsigned int>::iterator lookup = common.find(key_val.first);
+
+      //not at end so word must exist
+      if (lookup != common.end()) {
+        //repeated word
+        lookup->second++;
+      } else {
+        //no word in dict
+        common[key_val.first] = 1;
+      }
+    }
+  }
 }
 
 /**
@@ -64,7 +90,25 @@ void CommonWords::init_common()
 vector<string> CommonWords::get_common_words(unsigned int n) const
 {
     vector<string> out;
-    /* Your code goes here! */
+    for (std:: pair<string, unsigned int>  key_val: common) {
+
+      if (key_val.second == file_word_maps.size()) {
+          int check = 0;
+
+
+        for (size_t i = 0; i < file_word_maps.size(); i++) {
+          map<string, unsigned int>::const_iterator lookup = file_word_maps[i].find(key_val.first);
+
+          if (lookup->second < n) {
+            check = -1;
+            break;
+          }
+        }
+
+        if (check == 0) out.push_back(key_val.first);
+      }
+    }
+
     return out;
 }
 
