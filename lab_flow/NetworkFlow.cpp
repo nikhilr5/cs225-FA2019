@@ -100,7 +100,7 @@ bool NetworkFlow::findAugmentingPath(Vertex source, Vertex sink, std::vector<Ver
    */
 
 int NetworkFlow::pathCapacity(const std::vector<Vertex> & path) const {
-  int cap = 0;
+  int cap = INT_MAX;
   for (unsigned i = 0; i < path.size() - 1; i++) {
     int check = residual_.getEdgeWeight(path[i], path[i+1]);
 
@@ -128,14 +128,15 @@ const Graph & NetworkFlow::calculateFlow() {
         int edgeW = flow_.getEdgeWeight(vec[i], vec[i+1]);
         flow_.setEdgeWeight(vec[i],vec[i+1], edgeW + cap);
       } else {
+        //going up the pipe thus subtract flow
         int edgeW = flow_.getEdgeWeight(vec[i+1], vec[i]);
         flow_.setEdgeWeight(vec[i+1], vec[i], edgeW - cap);
       }
-      int edgeW2;
-      edgeW2 = residual_.getEdgeWeight(vec[i],vec[i+1]);
-      residual_.setEdgeWeight(vec[i], vec[i+1], edgeW2 + cap);
-      edgeW2 = residual_.getEdgeWeight(vec[i+1],vec[i]);
-      residual_.setEdgeWeight(vec[i+1],vec[i], edgeW2 - cap);
+
+      int edgeW2 = residual_.getEdgeWeight(vec[i],vec[i+1]);
+      residual_.setEdgeWeight(vec[i], vec[i+1], edgeW2 - cap);
+      int edgeW3 = residual_.getEdgeWeight(vec[i+1],vec[i]);
+      residual_.setEdgeWeight(vec[i+1],vec[i], edgeW2 + cap);
     }
 
   }
